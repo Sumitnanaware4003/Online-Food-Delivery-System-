@@ -185,13 +185,12 @@
     <button onclick="proceedToCheckout()">Checkout & Place Order</button>
 </div>
 <script>
-/* १. पदार्थ लोड करणे (इमेज पाथ दुरुस्त करून) */
-/* १. पदार्थ लोड करणे (सिंटॅक्स फिक्स केलेला) */
+
 fetch('/foods')
 .then(res => res.json())
 .then(data => {
     const menu = document.getElementById('menu');
-    menu.innerHTML = ""; // जुना डेटा क्लिअर करण्यासाठी
+    menu.innerHTML = "";
     const categories = {};
     
     data.forEach(f => {
@@ -204,7 +203,7 @@ fetch('/foods')
         let html = `<div class="category"><h2>${cat}</h2><div class="foods">`;
         
         categories[cat].forEach(food => {
-            // तुझा मूळ कोड जसाच्या तसा
+        
             html += `
             <div class="food-card">
                 <img src="/images/${food.image}" onerror="this.src='https://via.placeholder.com/150?text=No+Image'">
@@ -212,20 +211,20 @@ fetch('/foods')
                 <p>₹${food.price}</p>
                 <button onclick="addToCart(${food.food_id}, ${food.price}, '${food.name}', '${food.image}')">Add to Cart</button>
             </div>`;
-        }); // 👈 इथे forEach संपतोय
+        }); 
 
         html += `</div></div>`;
         menu.innerHTML += html;
-    } // 👈 इथे for...in लूप संपतोय
+    } 
 })
 .catch(err => console.error("Error fetching foods:", err));
 
-/* २. कार्ट सिस्टिम */
+
 let cart = JSON.parse(localStorage.getItem('cart')) || [];
 let total = parseFloat(localStorage.getItem('total')) || 0;
 
 function updateUI() {
-    // 'count' आणि 'total' आयडी असलेले घटक पेजवर असल्याची खात्री करा
+
     if(document.getElementById('count')) {
         document.getElementById('count').innerText = cart.reduce((s, i) => s + i.qty, 0);
     }
@@ -246,10 +245,10 @@ function addToCart(id, price, name, image) {
     localStorage.setItem('cart', JSON.stringify(cart));
     localStorage.setItem('total', total);
     updateUI();
-    alert(name + " कार्टमध्ये अ‍ॅड झाले! ✅");
+    alert(name + " Add To Card! ✅");
 }
 
-/* ३. चेकआउट कडे जाणे */
+
 function proceedToCheckout() {
     const isLoggedIn = localStorage.getItem("isLoggedIn");
     if (!isLoggedIn) {
@@ -258,24 +257,24 @@ function proceedToCheckout() {
         return;
     }
     if (cart.length === 0) {
-        alert("तुमची कार्ट रिकामी आहे!");
+        alert("“Your cart is empty.”!");
         return;
     }
-    // डेटा सेव्ह करा आणि चेकआउटला पाठवा
+    
     localStorage.setItem('cartTotal', total);
     window.location.href = "checkout.html";
 }
 
-/* ४. लॉगआउट आणि प्रोफाईल मॅनेजमेंट */
+
 function logout() {
-    if(confirm("तुम्हाला लॉगआउट करायचे आहे का?")) {
+    if(confirm("“Do you want to log out?")) {
         localStorage.removeItem("isLoggedIn");
         window.location.href = "login.html";
     }
 }
 
 window.onload = function() {
-    updateUI(); // पेज लोड झाल्यावर कार्ट अपडेट करा
+    updateUI(); 
     if(localStorage.getItem("isLoggedIn")) {
         if(document.getElementById("loginBtn")) document.getElementById("loginBtn").style.display = "none";
         if(document.getElementById("registerBtn")) document.getElementById("registerBtn").style.display = "none";
