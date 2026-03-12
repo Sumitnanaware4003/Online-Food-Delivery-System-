@@ -60,15 +60,15 @@
             </tr>
         </thead>
         <tbody id="adminTableBody">
-            <tr><td colspan="8" style="text-align:center;">डेटा लोड होत आहे...</td></tr>
+            <tr><td colspan="8" style="text-align:center;"> </td></tr>
         </tbody>
     </table>
 </div>
 
 <script>
-    // ✅ बाहेर पडण्यासाठी (Logout) फंक्शन
+   
     function logoutAdmin() {
-        if(confirm("तुम्हाला बाहेर पडायचे आहे का?")) {
+        if(confirm("Do you want to out")) {
             localStorage.removeItem("isLoggedIn");
             window.location.href = 'login.html'; 
         }
@@ -80,7 +80,7 @@
         try {
             const response = await fetch('/admin-all-orders');
             
-            // जर रिस्पॉन्स JSON नसेल तर एरर येईल (उदा. 404 किंवा 500 एरर)
+           
             if (!response.ok) {
                 const errorText = await response.text();
                 console.error("Server Response:", errorText);
@@ -91,8 +91,8 @@
             tbody.innerHTML = ""; 
 
             if (orders.length === 0) {
-                // ✅ 'text' वाला एरर इथे फिक्स केला आहे (बॅकटिक्स वापरून)
-                tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;">अद्याप एकही ऑर्डर मिळालेली नाही.</td></tr>`;
+                
+                tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;">“No orders have been received yet"</td></tr>`;
                 return;
             }
 
@@ -114,14 +114,15 @@
             });
         } catch (err) {
             console.error("Error Fetching Orders:", err);
-            // ✅ इथे सुद्धा कोटेशन्सची चूक दुरुस्त केली आहे
-            tbody.innerHTML = `<tr><td colspan="8" style="color:red; text-align:center;">डेटा लोड करण्यात एरर आली. (Check Console)</td></tr>`;
+            
+            tbody.innerHTML = `<tr><td colspan="8" style="color:red; text-align:center;"> (Check Console)</td></tr>`;
         }
     }
 
-    // पेज लोड झाल्यावर ऑर्डर्स लोड करा
+
     window.onload = loadAdminOrders;
 </script>
 
 </body>
+
 </html>
