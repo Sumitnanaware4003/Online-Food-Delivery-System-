@@ -57,7 +57,7 @@
     }
 
     async function deleteFood(id) {
-        if(confirm("हा पदार्थ काढून टाकायचा का?")) {
+        if(confirm("Do you want to remove this item..?")) {
             const res = await fetch(`/delete-food/${id}`, { method: 'DELETE' });
             const result = await res.json();
             if(result.success) loadFood();
@@ -65,7 +65,7 @@
     }
 
     async function editPrice(id, oldPrice) {
-        const newPrice = prompt("नवीन किंमत टाका:", oldPrice);
+        const newPrice = prompt("“Enter a new price.:", oldPrice);
         if(newPrice) {
             const res = await fetch('/update-price', {
                 method: 'POST',
@@ -80,4 +80,5 @@
     window.onload = loadFood;
 </script>
 </body>
+
 </html>
