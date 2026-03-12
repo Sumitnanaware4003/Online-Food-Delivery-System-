@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Order Details</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f9f9f9; padding: 20px; }
+        .details-container { max-width: 600px; margin: auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        .food-item { display: flex; align-items: center; border-bottom: 1px solid #eee; padding: 10px 0; }
+        .food-item img { width: 60px; height: 60px; border-radius: 5px; margin-right: 15px; }
+        .back-btn { background: #333; color: white; padding: 10px; border: none; cursor: pointer; margin-top: 20px; border-radius: 5px; }
+    </style>
+</head>
+<body>
+
+<div class="details-container">
+    <h2 style="color: #ff4d4d;">Order Details</h2>
+    <p id="orderIdLabel">Order ID: #</p>
+    <hr>
+    <div id="itemsList">Loading items...</div>
+    <button class="back-btn" onclick="location.href='orders.html'">Back to History</button>
+</div>
+
+<script>
+async function loadOrderItems() {
+    const orderId = localStorage.getItem('selectedOrderId');
+    if (!orderId) {
+        window.location.href = 'orders.html';
+        return;
+    }
+
+    document.getElementById('orderIdLabel').innerText = "Order ID: #" + orderId;
+    const itemsDiv = document.getElementById('itemsList');
+
+    try {
+        const response = await fetch(`/order-details-api/${orderId}`);
+        const items = await response.json();
+
+        itemsDiv.innerHTML = "";
+        items.forEach(item => {
+            itemsDiv.innerHTML += `
+                <div class="food-item">
+                    <img src="${item.image}" onerror="this.src='https://via.placeholder.com/60'">
+                    <div>
+                        <b>${item.food_name}</b><br>
+                        ₹${item.price} x ${item.qty} = <b>₹${item.price * item.qty}</b>
+                    </div>
+                </div>
+            `;
+        });
+    } catch (err) {
+        itemsDiv.innerHTML = "Error loading details.";
+    }
+}
+
+window.onload = loadOrderItems;
+</script>
+</body>
+</html>

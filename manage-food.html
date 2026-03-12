@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Manage Menu - Admin</title>
+    <style>
+        body { font-family: Arial; padding: 20px; background: #f4f4f4; }
+        .container { background: white; padding: 20px; border-radius: 8px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        th { background: #333; color: white; }
+        .btn-delete { background: #ff4d4d; color: white; border: none; padding: 5px 10px; cursor: pointer; border-radius: 3px; }
+        .btn-edit { background: #007bff; color: white; border: none; padding: 5px 10px; cursor: pointer; border-radius: 3px; }
+        img { width: 50px; height: 50px; border-radius: 5px; object-fit: cover; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Manage Food Menu</h2>
+    <button onclick="window.location.href='admin.html'">← Back to Dashboard</button>
+    
+    <table>
+        <thead>
+            <tr>
+                <th>Image</th>
+                <th>Name</th>
+                <th>Category</th>
+                <th>Price</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody id="foodTableBody"></tbody>
+    </table>
+</div>
+
+<script>
+    async function loadFood() {
+        const res = await fetch('/admin-get-all-food');
+        const foods = await res.json();
+        const tbody = document.getElementById('foodTableBody');
+        tbody.innerHTML = "";
+
+        foods.forEach(food => {
+            tbody.innerHTML += `
+                <tr>
+                    <td><img src="/images/${food.image}" onerror="this.src='https://via.placeholder.com/50'"></td>
+                    <td>${food.name}</td>
+                    <td>${food.category}</td>
+                    <td>₹${food.price}</td>
+                    <td>
+                        <button class="btn-edit" onclick="editPrice(${food.food_id}, ${food.price})">Edit Price</button>
+                        <button class="btn-delete" onclick="deleteFood(${food.food_id})">Delete</button>
+                    </td>
+                </tr>
+            `;
+        });
+    }
+
+    async function deleteFood(id) {
+        if(confirm("हा पदार्थ काढून टाकायचा का?")) {
+            const res = await fetch(`/delete-food/${id}`, { method: 'DELETE' });
+            const result = await res.json();
+            if(result.success) loadFood();
+        }
+    }
+
+    async function editPrice(id, oldPrice) {
+        const newPrice = prompt("नवीन किंमत टाका:", oldPrice);
+        if(newPrice) {
+            const res = await fetch('/update-price', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ id, newPrice })
+            });
+            const result = await res.json();
+            if(result.success) loadFood();
+        }
+    }
+
+    window.onload = loadFood;
+</script>
+</body>
+</html>

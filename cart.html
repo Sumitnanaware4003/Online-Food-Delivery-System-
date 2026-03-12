@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <meta charset="UTF-8">
+    <title>Your Cart</title>
+
+    <style>
+        header {
+            background: #ff624d;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .logo {
+            font-size: 22px;
+            font-weight: bold;
+        }
+
+        .nav-left a {
+            color: white;
+            text-decoration: none;
+            margin-left: 20px;
+            font-weight: bold;
+        }
+
+        .nav-left a:hover {
+            text-decoration: underline;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            padding: 30px;
+            background: #f7f7f7;
+        }
+
+        h2 {
+            margin-bottom: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+
+        th, td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+            text-align: center;
+        }
+
+        th {
+            background: #ff624d;
+            color: white;
+        }
+
+        img {
+            width: 60px;
+            border-radius: 6px;
+        }
+
+        button {
+            background: #ff624d;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .remove-btn {
+            background: #333;
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <div class="logo">
+        <i class="fas fa-utensils"></i> TastyBites
+    </div>
+
+    <div class="nav-left">
+        <a href="index.html">Home</a>
+        <a href="login.html">Login</a>
+        <a href="registration.html">Register</a>
+    </div>
+</header>
+
+<h2>Your Cart</h2>
+
+<table id="cartTable">
+    <tr>
+        <th>Image</th>
+        <th>Food</th>
+        <th>Price</th>
+        <th>Qty</th>
+        <th>Total</th>
+        <th>Action</th>
+    </tr>
+</table>
+
+<h3>Total: ₹<span id="total">0.00</span></h3>
+
+<button id="orderBtn" onclick="placeOrder()">Place Order</button>
+
+<script>
+let cart = JSON.parse(localStorage.getItem('cart')) || [];
+
+const table = document.getElementById('cartTable');
+const totalSpan = document.getElementById('total');
+const orderBtn = document.getElementById('orderBtn');
+
+function renderCart() {
+
+    table.innerHTML = `
+        <tr>
+            <th>Image</th>
+            <th>Food</th>
+            <th>Price</th>
+            <th>Qty</th>
+            <th>Total</th>
+            <th>Action</th>
+        </tr>
+    `;
+
+    if (cart.length === 0) {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td colspan="6" style="padding:20px; text-align:center;">
+                🛒 Your cart is empty
+            </td>
+        `;
+        table.appendChild(row);
+
+        totalSpan.innerText = "0.00";
+        orderBtn.disabled = true;
+        localStorage.removeItem('total');
+        return;
+    }
+
+    let total = 0;
+    orderBtn.disabled = false;
+
+    cart.forEach((item, index) => {
+
+        const itemTotal = item.price * item.qty;
+        total += itemTotal;
+
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td><img src="${item.image || './images/g-1.jpg'}"></td>
+            <td>${item.name}</td>
+            <td>₹${item.price}</td>
+            <td>${item.qty}</td>
+            <td>₹${itemTotal}</td>
+            <td>
+                <button class="remove-btn" onclick="removeItem(${index})">
+                    Remove
+                </button>
+            </td>
+        `;
+
+        table.appendChild(row);
+    });
+
+    totalSpan.innerText = total.toFixed(2);
+    localStorage.setItem('total', total);
+}
+
+function removeItem(index) {
+    if (cart[index].qty > 1) {
+        cart[index].qty -= 1;
+    } else {
+        cart.splice(index, 1);
+    }
+
+    localStorage.setItem('cart', JSON.stringify(cart));
+    renderCart();
+}
+
+function placeOrder() {
+
+    // ✅ LOGIN CHECK (सगळ्यात वर)
+    const isLoggedIn = localStorage.getItem("isLoggedIn");
+
+    if (!isLoggedIn) {
+        alert("Please login first to place order 🔐");
+        window.location.href = "login.html";
+        return;
+    }
+
+    // cart empty check
+    if (cart.length === 0) {
+        alert("Your cart is empty");
+        return;
+    }
+
+    // 🔥 Order save
+    const orders = JSON.parse(localStorage.getItem('orders')) || [];
+
+    const newOrder = {
+        id: Date.now(),
+        items: cart,
+        total: localStorage.getItem('total'),
+        status: "Placed",
+        date: new Date().toLocaleString()
+    };
+
+    orders.push(newOrder);
+    localStorage.setItem('orders', JSON.stringify(orders));
+
+    // cart clear
+    localStorage.removeItem('cart');
+
+    // ✅ success page
+    window.location.href = "order-success.html";
+}
+
+// initial load
+renderCart();
+</script>
+
+</body>
+</html>

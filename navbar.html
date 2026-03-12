@@ -1,0 +1,57 @@
+<header>
+    <div class="logo">
+        <i class="fas fa-utensils"></i> TastyBites
+    </div>
+
+    <div class="nav-right">
+        <a href="login.html" id="loginBtn">Login</a>
+        <a href="registration.html" id="registerBtn">Register</a>
+        <a href="orders.html" id="HomeBtn">Home</a>
+
+        <div class="user-box" id="userBox">
+            <i class="fas fa-user-circle"></i>
+            <span id="username"></span>
+        </div>
+    </div>
+</header>
+
+<style>
+header {
+    background: #ff4d4d;
+    padding: 15px 40px;
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo {
+    font-size: 22px;
+    font-weight: bold;
+}
+
+.nav-right {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.user-box {
+    display: none;
+    align-items: center;
+    gap: 8px;
+    background: white;
+    color: black;
+    padding: 5px 10px;
+    border-radius: 20px;
+}
+
+.user-box i {
+    color: #ff4d4d;
+}
+
+a {
+    color: white;
+    text-decoration: none;
+}
+</style>

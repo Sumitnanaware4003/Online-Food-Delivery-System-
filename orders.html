@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>My Orders - Tasty Bites</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f7f7f7; padding: 30px; }
+        h2 { color: #ff4d4d; border-bottom: 2px solid #ff4d4d; display: inline-block; }
+        .order-card { background: white; padding: 20px; margin-bottom: 15px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); border-left: 5px solid #ff4d4d; }
+        .status { font-weight: bold; color: #28a745; text-transform: uppercase; }
+        .view-btn { background: #ff4d4d; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; margin-top: 10px; font-weight: bold; }
+        .back-btn { background: #333; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; margin-top: 20px; }
+        .no-orders { text-align: center; margin-top: 50px; font-size: 18px; color: #666; }
+    </style>
+</head>
+<body>
+    <h2>My Orders</h2>
+    <div id="ordersList">Loading your orders...</div>
+    <button class="back-btn" onclick="window.location.href='index.html'">← Back to Menu</button>
+
+<script>
+async function loadOrders() {
+    const ordersDiv = document.getElementById('ordersList');
+    try {
+        const response = await fetch('/my-orders-api');
+        
+        if (!response.ok) {
+            ordersDiv.innerHTML = "<p>Please login again to see your orders.</p>";
+            return;
+        }
+
+        const orders = await response.json();
+
+        if (orders.length === 0) {
+            ordersDiv.innerHTML = "<p class='no-orders'>You haven't placed any orders yet! 🍕</p>";
+            return;
+        }
+
+        ordersDiv.innerHTML = ""; // Clear loader
+        orders.forEach(order => {
+            const date = new Date(order.order_date).toLocaleString('en-IN');
+            const div = document.createElement('div');
+            div.className = "order-card";
+            div.innerHTML = `
+                <p><b>Order ID:</b> #${order.order_id}</p>
+                <p><b>Date:</b> ${date}</p>
+                <p><b>Total Amount:</b> ₹${order.total_amount}</p>
+                <p><b>Status:</b> <span class="status">${order.status}</span></p>
+                <button class="view-btn" onclick="viewOrder(${order.order_id})">View Details</button>
+            `;
+            ordersDiv.appendChild(div);
+        });
+    } catch (err) {
+        console.error("Fetch Error:", err);
+        ordersDiv.innerHTML = "<p>Error loading orders. Make sure server is running.</p>";
+    }
+}
+
+function viewOrder(orderId) {
+    localStorage.setItem('selectedOrderId', orderId);
+    window.location.href = "my-orders.html"; 
+}
+
+window.onload = loadOrders;
+</script>
+</body>
+</html>

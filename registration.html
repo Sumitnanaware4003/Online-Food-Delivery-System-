@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>User Registration</title>
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background: linear-gradient(to right, #f0f0e5, #ff9966);
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .register-box {
+        background: white;
+        padding: 30px;
+        width: 350px;
+        border-radius: 10px;
+        box-shadow: 0 0 15px rgba(0,0,0,0.2);
+    }
+
+    .register-box h2 {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    input, button {
+        width: 100%;
+        padding: 10px;
+        margin-top: 10px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+    }
+
+    button {
+        background: #ff4d4d;
+        color: white;
+        border: none;
+        font-size: 16px;
+        cursor: pointer;
+    }
+
+    button:hover {
+        background: #e63e3e;
+    }
+
+    #msg {
+        margin-top: 10px;
+        text-align: center;
+        font-weight: bold;
+    }
+
+    .login-link {
+        margin-top: 15px;
+        text-align: center;
+    }
+
+    .login-link a {
+        color: #ff4d4d;
+        text-decoration: none;
+        font-weight: bold;
+    }
+
+    .login-link a:hover {
+        text-decoration: underline;
+    }
+</style>
+</head>
+
+<body>
+
+<div class="register-box">
+    <h2>Create Account</h2>
+
+    <!-- FORM -->
+    <form id="registerForm">
+        <input type="text" id="name" placeholder="Full Name" required>
+        <input type="email" id="email" placeholder="Email" required>
+        <input type="password" id="password" placeholder="Password" required>
+        <input type="password" id="confirm" placeholder="Confirm Password" required>
+
+        <button type="submit">Register</button>
+    </form>
+
+    <p id="msg"></p>
+
+    <!-- ✅ Already have account -->
+    <div class="login-link">
+        Already have an account? <a href="login.html">Login here</a>
+    </div>
+</div>
+
+<script>
+document.getElementById('registerForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const name = document.getElementById('name').value;
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+    const msg = document.getElementById('msg'); // मेसेज दाखवण्यासाठी एक <p id="msg"></p> ठेवा
+
+    fetch('/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, password })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            alert(data.message);
+            window.location.href = "login.html"; // रजिस्ट्रेशन झाल्यावर लॉगिन पेजवर पाठवा
+        } else {
+            msg.style.color = 'red';
+            msg.innerText = data.message;
+        }
+    })
+    .catch(() => { msg.innerText = 'Server error ❌'; });
+});
+</script>
+
+</body>
+</html>

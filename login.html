@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>User Login</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: linear-gradient(to right, #ff8e4d, #14161b); height: 100vh; display: flex; justify-content: center; align-items: center; margin: 0; }
+        .login-box { background: white; padding: 30px; width: 350px; border-radius: 10px; box-shadow: 0 0 15px rgba(0,0,0,0.2); }
+        h2 { text-align: center; }
+        input, button { width: 100%; padding: 12px; margin-top: 15px; border-radius: 5px; border: 1px solid #ccc; box-sizing: border-box; }
+        button { background: #4d85ff; color: white; border: none; font-size: 16px; cursor: pointer; font-weight: bold; }
+        button:hover { background: #3b6edb; }
+        #msg { margin-top: 15px; text-align: center; font-weight: bold; }
+    </style>
+</head>
+<body>
+<div class="login-box">
+    <h2>User Login</h2>
+    <form id="loginForm">
+        <input type="email" id="email" placeholder="Email" required>
+        <input type="password" id="password" placeholder="Password" required>
+        <button type="submit">Login</button>
+    </form>
+    <div style="text-align: center; margin-top: 15px;">
+        New user? <a href="registration.html" style="color:#4d85ff; text-decoration:none;">Register here</a>
+    </div>
+    <p id="msg"></p>
+</div>
+
+<script>
+document.getElementById('loginForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const msg = document.getElementById('msg');
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+    
+    fetch('/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+    })
+    .then(res => res.json())
+    .then(data => {
+    if (data.success) {
+        localStorage.setItem("isLoggedIn", "true");
+        
+        // ✅ जर अ‍ॅडमिन असेल तर admin.html वर पाठवा, नाहीतर index.html वर
+        if (data.isAdmin) {
+            window.location.replace("admin.html");
+        } else {
+            window.location.replace("index.html");
+        }
+    } else {
+        msg.style.color = 'red';
+        msg.innerText = data.message;
+    }
+})
+});
+</script>
+</body>
+</html>

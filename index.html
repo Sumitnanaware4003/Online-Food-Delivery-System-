@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Tasty Bites | Food Delivery</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet"
+        href="https://use.fontawesome.com/releases/v5.15.4/css/all.css">
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            background: #f5f5f5;
+        }
+
+        header {
+            background: #ff4d4d;
+            padding: 15px 40px;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 22px;
+            font-weight: bold;
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .user-box {
+            display: none;
+            align-items: center;
+            gap: 8px;
+            background: white;
+            color: black;
+            padding: 5px 10px;
+            border-radius: 20px;
+            cursor: pointer;
+        }
+
+        .user-box i {
+            color: #ff4d4d;
+        }
+
+        .menu-container {
+            padding: 30px;
+        }
+
+        .category {
+            margin-bottom: 40px;
+        }
+
+        .category h2 {
+            color: #ff4d4d;
+            border-bottom: 2px solid #ff4d4d;
+            display: inline-block;
+        }
+
+        .foods {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 20px;
+            margin-top: 15px;
+        }
+
+        .food-card {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .food-card img {
+            width: 100%;
+            height: 140px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+
+        .food-card h4 {
+            margin: 10px 0 5px;
+        }
+
+        .food-card p {
+            margin: 0;
+            color: gray;
+        }
+
+        .food-card button {
+            margin-top: 10px;
+            background: #ff4d4d;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .cart-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #333;
+            color: white;
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .cart-bar button {
+            background: #ff4d4d;
+            border: none;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        a {
+            color: white;
+            text-decoration: none;
+        }
+
+        .profile-link {
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        #profileBtn {
+    display: none;
+}
+
+    </style>
+</head>
+
+<body>
+<header>
+    <div class="logo">
+        <i class="fas fa-utensils"></i> TastyBites
+    </div>
+
+    <div class="nav-right">
+    <a href="login.html" id="loginBtn">Login</a>
+    <a href="registration.html" id="registerBtn">Register</a>
+
+    <a href="orders.html" id="profileBtn">
+        <i class="fas fa-user"></i> My Profile
+    </a>
+
+    <!-- Logout ICON -->
+    <a href="#" id="logoutBtn" onclick="logout()" title="Logout">
+        <i class="fas fa-sign-out-alt"></i>Logout
+    </a>
+</div>
+
+
+
+</a>
+
+
+
+        <div class="user-box" id="userBox">
+            <i class="fas fa-user-circle"></i>
+            <span id="username"></span>
+        </div>
+    </div>
+</header>
+
+<div class="menu-container" id="menu"></div>
+
+<div class="cart-bar">
+    <span>Items: <b id="count">0</b> | Total: ₹<b id="total">0</b></span>
+    <button onclick="proceedToCheckout()">Checkout & Place Order</button>
+</div>
+<script>
+/* १. पदार्थ लोड करणे (इमेज पाथ दुरुस्त करून) */
+/* १. पदार्थ लोड करणे (सिंटॅक्स फिक्स केलेला) */
+fetch('/foods')
+.then(res => res.json())
+.then(data => {
+    const menu = document.getElementById('menu');
+    menu.innerHTML = ""; // जुना डेटा क्लिअर करण्यासाठी
+    const categories = {};
+    
+    data.forEach(f => {
+        const cat = f.category ? f.category.trim() : "General";
+        if (!categories[cat]) categories[cat] = [];
+        categories[cat].push(f);
+    });
+
+    for (let cat in categories) {
+        let html = `<div class="category"><h2>${cat}</h2><div class="foods">`;
+        
+        categories[cat].forEach(food => {
+            // तुझा मूळ कोड जसाच्या तसा
+            html += `
+            <div class="food-card">
+                <img src="/images/${food.image}" onerror="this.src='https://via.placeholder.com/150?text=No+Image'">
+                <h4>${food.name}</h4>
+                <p>₹${food.price}</p>
+                <button onclick="addToCart(${food.food_id}, ${food.price}, '${food.name}', '${food.image}')">Add to Cart</button>
+            </div>`;
+        }); // 👈 इथे forEach संपतोय
+
+        html += `</div></div>`;
+        menu.innerHTML += html;
+    } // 👈 इथे for...in लूप संपतोय
+})
+.catch(err => console.error("Error fetching foods:", err));
+
+/* २. कार्ट सिस्टिम */
+let cart = JSON.parse(localStorage.getItem('cart')) || [];
+let total = parseFloat(localStorage.getItem('total')) || 0;
+
+function updateUI() {
+    // 'count' आणि 'total' आयडी असलेले घटक पेजवर असल्याची खात्री करा
+    if(document.getElementById('count')) {
+        document.getElementById('count').innerText = cart.reduce((s, i) => s + i.qty, 0);
+    }
+    if(document.getElementById('total')) {
+        document.getElementById('total').innerText = total.toFixed(2);
+    }
+}
+updateUI();
+
+function addToCart(id, price, name, image) {
+    const existing = cart.find(i => i.id === id);
+    if (existing) { 
+        existing.qty += 1; 
+    } else { 
+        cart.push({ id, name, price, qty: 1, image }); 
+    }
+    total += price;
+    localStorage.setItem('cart', JSON.stringify(cart));
+    localStorage.setItem('total', total);
+    updateUI();
+    alert(name + " कार्टमध्ये अ‍ॅड झाले! ✅");
+}
+
+/* ३. चेकआउट कडे जाणे */
+function proceedToCheckout() {
+    const isLoggedIn = localStorage.getItem("isLoggedIn");
+    if (!isLoggedIn) {
+        alert("Please login first 🔐");
+        window.location.href = "login.html";
+        return;
+    }
+    if (cart.length === 0) {
+        alert("तुमची कार्ट रिकामी आहे!");
+        return;
+    }
+    // डेटा सेव्ह करा आणि चेकआउटला पाठवा
+    localStorage.setItem('cartTotal', total);
+    window.location.href = "checkout.html";
+}
+
+/* ४. लॉगआउट आणि प्रोफाईल मॅनेजमेंट */
+function logout() {
+    if(confirm("तुम्हाला लॉगआउट करायचे आहे का?")) {
+        localStorage.removeItem("isLoggedIn");
+        window.location.href = "login.html";
+    }
+}
+
+window.onload = function() {
+    updateUI(); // पेज लोड झाल्यावर कार्ट अपडेट करा
+    if(localStorage.getItem("isLoggedIn")) {
+        if(document.getElementById("loginBtn")) document.getElementById("loginBtn").style.display = "none";
+        if(document.getElementById("registerBtn")) document.getElementById("registerBtn").style.display = "none";
+        if(document.getElementById("profileBtn")) document.getElementById("profileBtn").style.display = "inline";
+    }
+};
+</script>
+
+</body>
+</html>

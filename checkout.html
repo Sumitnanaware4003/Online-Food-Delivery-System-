@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Checkout - Delivery Details</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f4f4f4; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+        .container { width: 100%; max-width: 400px; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        h2 { color: #ff4d4d; text-align: center; }
+        .summary { background: #fff5e6; padding: 15px; border-radius: 5px; margin-bottom: 20px; text-align: center; font-weight: bold; border: 1px solid #ff4d4d; }
+        input, textarea { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; background: #27ae60; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; font-weight: bold; }
+        button:hover { background: #219150; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>🚚 Delivery Details</h2>
+    <div class="summary" id="summary">Total: ₹0</div>
+    <form id="orderForm">
+        <label>Mobile Number:</label>
+        <input type="text" id="phone" placeholder="10 Digit Number" required pattern="[0-9]{10}">
+        
+        <label>Full Address:</label>
+        <textarea id="address" rows="3" placeholder="Flat No, Area, City..." required></textarea>
+        
+        <button type="submit">Confirm & Place Order</button>
+    </form>
+</div>
+
+<script>
+    const cart = JSON.parse(localStorage.getItem('cart')) || [];
+    const total = localStorage.getItem('cartTotal') || localStorage.getItem('total') || 0;
+
+    if (cart.length === 0) {
+        alert("Cart is empty!");
+        window.location.href = 'index.html';
+    }
+
+    document.getElementById('summary').innerText = `Total Amount: ₹${total}`;
+
+    document.getElementById('orderForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const orderData = {
+            cart: cart,
+            total: total,
+            phone: document.getElementById('phone').value,
+            address: document.getElementById('address').value
+        };
+
+        try {
+            const res = await fetch('/place-order', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(orderData)
+            });
+
+            const result = await res.json();
+            if (result.success) {
+                // क्लियर डेटा
+                localStorage.removeItem('cart');
+                localStorage.removeItem('total');
+                localStorage.removeItem('cartTotal');
+                window.location.href = 'order-success.html';
+            } else {
+                alert("Error: " + result.message);
+            }
+        } catch (err) {
+            alert("Server Error! Make sure server is running.");
+        }
+    });
+</script>
+</body>
+</html>

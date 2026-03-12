@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Panel - Tasty Bites</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background: #f4f4f4; }
+        .container { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        
+        /* Header Styling */
+        .admin-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #ff4d4d; padding-bottom: 10px; margin-bottom: 20px; }
+        h2 { color: #333; margin: 0; }
+        
+        /* Buttons */
+        .btn-add { background: #28a745; color: white; padding: 10px 15px; border: none; border-radius: 5px; cursor: pointer; text-decoration: none; font-weight: bold; }
+        .btn-logout { background: #dc3545; color: white; padding: 10px 15px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        .btn-manage { background: #007bff; color: white; padding: 10px 15px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; margin-right: 10px; }
+        
+        .btn-add:hover { background: #218838; }
+        .btn-logout:hover { background: #c82333; }
+        .btn-manage:hover { background: #0069d9; }
+
+        /* Table Styling */
+        table { width: 100%; border-collapse: collapse; background: white; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        th { background: #333; color: white; text-transform: uppercase; font-size: 13px; }
+        tr:nth-child(even) { background: #f9f9f9; }
+        tr:hover { background: #f1f1f1; }
+        .status-pill { background: #ffeaa7; color: #d63031; padding: 4px 10px; border-radius: 4px; font-weight: bold; font-size: 12px; }
+        .address-cell { font-size: 12px; max-width: 200px; color: #555; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="admin-header">
+        <h2>Admin Dashboard - All Orders</h2>
+        <button onclick="logoutAdmin()" class="btn-logout">Logout 🚪</button>
+    </div>
+
+    <div style="margin-bottom: 15px; display: flex;">
+        <button onclick="window.location.href='manage-food.html'" class="btn-manage">
+            ⚙️ Manage Products
+        </button>
+        <button onclick="window.location.href='add-food.html'" class="btn-add">
+            + Add New Product
+        </button>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Customer</th>
+                <th>Items (Qty)</th>
+                <th>Address</th> 
+                <th>Phone</th>   
+                <th>Total</th>
+                <th>Status</th>
+                <th>Date</th>
+            </tr>
+        </thead>
+        <tbody id="adminTableBody">
+            <tr><td colspan="8" style="text-align:center;">डेटा लोड होत आहे...</td></tr>
+        </tbody>
+    </table>
+</div>
+
+<script>
+    // ✅ बाहेर पडण्यासाठी (Logout) फंक्शन
+    function logoutAdmin() {
+        if(confirm("तुम्हाला बाहेर पडायचे आहे का?")) {
+            localStorage.removeItem("isLoggedIn");
+            window.location.href = 'login.html'; 
+        }
+    }
+
+    async function loadAdminOrders() {
+        const tbody = document.getElementById('adminTableBody');
+        
+        try {
+            const response = await fetch('/admin-all-orders');
+            
+            // जर रिस्पॉन्स JSON नसेल तर एरर येईल (उदा. 404 किंवा 500 एरर)
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error("Server Response:", errorText);
+                throw new Error("Data fetch failed with status: " + response.status);
+            }
+
+            const orders = await response.json();
+            tbody.innerHTML = ""; 
+
+            if (orders.length === 0) {
+                // ✅ 'text' वाला एरर इथे फिक्स केला आहे (बॅकटिक्स वापरून)
+                tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;">अद्याप एकही ऑर्डर मिळालेली नाही.</td></tr>`;
+                return;
+            }
+
+            orders.forEach(order => {
+                const date = new Date(order.order_date).toLocaleString('en-IN');
+                
+                tbody.innerHTML += `
+                    <tr>
+                        <td><b>#${order.order_id}</b></td>
+                        <td>${order.user_name}</td>
+                        <td>${order.items || 'No Items'}</td>
+                        <td class="address-cell">${order.address || 'N/A'}</td> 
+                        <td>${order.phone || 'N/A'}</td>                    
+                        <td>₹${order.total_amount}</td>
+                        <td><span class="status-pill">${order.status}</span></td>
+                        <td style="font-size: 11px;">${date}</td>
+                    </tr>
+                `;
+            });
+        } catch (err) {
+            console.error("Error Fetching Orders:", err);
+            // ✅ इथे सुद्धा कोटेशन्सची चूक दुरुस्त केली आहे
+            tbody.innerHTML = `<tr><td colspan="8" style="color:red; text-align:center;">डेटा लोड करण्यात एरर आली. (Check Console)</td></tr>`;
+        }
+    }
+
+    // पेज लोड झाल्यावर ऑर्डर्स लोड करा
+    window.onload = loadAdminOrders;
+</script>
+
+</body>
+</html>

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Add New Dish - Tasty Bites</title>
+    <style>
+        body { font-family: 'Segoe UI', Arial; background: #f0f2f5; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .card { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 100%; max-width: 400px; }
+        h2 { text-align: center; color: #ff4d4d; margin-bottom: 20px; }
+        label { display: block; margin-top: 10px; font-weight: bold; color: #555; }
+        input, select { width: 100%; padding: 12px; margin-top: 5px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-size: 14px; }
+        .btn-submit { background: #28a745; color: white; border: none; width: 100%; padding: 12px; border-radius: 6px; cursor: pointer; font-size: 16px; font-weight: bold; margin-top: 20px; transition: 0.3s; }
+        .btn-submit:hover { background: #218838; }
+        .back-link { display: block; text-align: center; margin-top: 15px; color: #666; text-decoration: none; font-size: 14px; }
+        .back-link:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h2>Add New Dish 🍔</h2>
+    <form id="addFoodForm">
+        <label>Dish Name</label>
+        <input type="text" id="name" placeholder="उदा. स्पेशल मिसळ" required>
+
+        <label>Price (₹)</label>
+        <input type="number" id="price" placeholder="उदा. 80" required>
+
+        <label>Category</label>
+        <select id="category">
+            <option value="Veg">Veg</option>
+            <option value="Non-Veg">Non-Veg</option>
+            <option value="Fast Food">Fast Food</option>
+            <option value="Dessert">Dessert</option>
+        </select>
+
+        <label>Image Filename</label>
+        <input type="text" id="image" placeholder="उदा. misal.jpg" required>
+
+        <button type="submit" class="btn-submit">Add to Menu</button>
+    </form>
+    <a href="admin.html" class="back-link">← Back to Dashboard</a>
+</div>
+
+<script>
+    document.getElementById('addFoodForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const name = document.getElementById('name').value;
+        const price = document.getElementById('price').value;
+        const category = document.getElementById('category').value;
+        const image = document.getElementById('image').value;
+
+        try {
+            const response = await fetch('/add-food-api', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, price, image, category })
+            });
+
+            const result = await response.json();
+            if (result.success) {
+                alert("Dish added successfully! 🎉");
+                document.getElementById('addFoodForm').reset();
+            } else {
+                alert("Error adding dish ❌");
+            }
+        } catch (err) {
+            console.error(err);
+            alert("Server not responding ❌");
+        }
+    });
+</script>
+
+</body>
+</html>
