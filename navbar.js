@@ -1,12 +1,3 @@
-// Load navbar into page
-// fetch('http://localhost:3000/navbar.html')
-//     .then(res => res.text())
-//     .then(html => {
-//         document.getElementById('navbar').innerHTML = html;
-
-//         // after navbar loaded, check login
-//         checkUserLogin();
-//     });
 
 function checkUserLogin() {
     fetch('http://localhost:3000/current-user')
@@ -33,3 +24,4 @@ fetch('http://localhost:3000/check-login')
   });
 
   
+
