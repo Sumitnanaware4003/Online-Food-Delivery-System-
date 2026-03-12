@@ -44,7 +44,6 @@ document.getElementById('loginForm').addEventListener('submit', function(e) {
     if (data.success) {
         localStorage.setItem("isLoggedIn", "true");
         
-        // ✅ जर अ‍ॅडमिन असेल तर admin.html वर पाठवा, नाहीतर index.html वर
         if (data.isAdmin) {
             window.location.replace("admin.html");
         } else {
@@ -58,4 +57,5 @@ document.getElementById('loginForm').addEventListener('submit', function(e) {
 });
 </script>
 </body>
+
 </html>
